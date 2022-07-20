@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Student
+from .models import Student, Category, Book
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,3 +17,15 @@ class StudentSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Age cannot be less than 18")
         
         return data
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['category_name',]
+
+class BookSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    class Meta:
+        model = Book
+        fields = "__all__"
+        #depth = 1
