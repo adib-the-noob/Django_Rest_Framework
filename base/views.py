@@ -28,3 +28,19 @@ def post_student(request):
             'message': 'Student created successfully'
         }
     )
+
+@api_view(['PUT'])
+def update_student(request,id):
+    student_obj = Student.objects.get(id=id)
+    serializer = StudentSerializer(student_obj, data=request.data, partial=True)
+    if not serializer.is_valid():
+        return Response(
+            {
+                'status': 'error',
+                'message': serializer.errors
+            }
+        )
+    serializer.save()
+    return Response({
+        'mesaage': 'Student updated successfully'
+    })
