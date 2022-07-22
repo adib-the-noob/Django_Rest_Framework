@@ -41,16 +41,36 @@ def post_student(request):
 
 @api_view(['PUT'])
 def update_student(request,id):
-    student_obj = Student.objects.get(id=id)
-    serializer = StudentSerializer(student_obj, data=request.data, partial=True)
-    if not serializer.is_valid():
-        return Response(
-            {
-                'status': 'error',
-                'message': serializer.errors
-            }
-        )
-    serializer.save()
-    return Response({
-        'mesaage': 'Student updated successfully'
-    })
+    try:
+        student_obj = Student.objects.get(id=id)
+        serializer = StudentSerializer(student_obj, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(
+                {
+                    'status': 'error',
+                    'message': serializer.errors
+                }
+            )
+        serializer.save()
+        return Response({
+            'mesaage': 'Student updated successfully'
+        })
+    except Exception as e:
+        print(e)
+        return Response({
+            'message': 'Student not found'
+        })
+
+@api_view(['DELETE'])
+def delete_student(request,id):
+    try:
+        student_obj = Student.objects.get(id=id)
+        student_obj.delete()
+        return Response({
+            'message': 'Student deleted successfully'
+        })
+
+    except Exception as e:
+        return Response({
+            'message': 'Student not found'
+        })
