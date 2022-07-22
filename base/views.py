@@ -45,7 +45,14 @@ class RegisterUser(APIView):
         )
 
 
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+
 class StudentAPI(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         students = Student.objects.all()
         serializer = StudentSerializer(students, many=True)
@@ -109,19 +116,3 @@ class StudentAPI(APIView):
             })
 
 
-# @api_view(['GET'])
-# def home(request):
-#     students = Student.objects.all()
-#     serializer = StudentSerializer(students, many=True)
-#     return Response(serializer.data)
-
-
-# @api_view(['POST'])
-# def post_student(request):
-
-
-# @api_view(['PUT'])
-# def update_student(request,id):
-
-# @api_view(['DELETE'])
-# def delete_student(request,id):
