@@ -7,6 +7,14 @@ from rest_framework.views import APIView
 
 # Create your views here.
 
+@api_view(['GET'])
+def get_book(request):
+    books = Book.objects.all()
+    serializer = BookSerializer(books, many=True)
+    return Response({
+        'books': serializer.data
+    })
+
 class StudentAPI(APIView):
 
     def get(self, request):
@@ -75,13 +83,6 @@ class StudentAPI(APIView):
 
 
 
-@api_view(['GET'])
-def get_book(request):
-    books = Book.objects.all()
-    serializer = BookSerializer(books, many=True)
-    return Response({
-        'books': serializer.data
-    })
 
 # @api_view(['GET'])
 # def home(request):
