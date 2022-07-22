@@ -1,11 +1,20 @@
 from rest_framework import serializers
 from .models import Student, Category, Book
+from django.contrib.auth.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username','password']
+
+
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = "__all__"
-
+ 
     def validate(self, data):
         if 'name' in data and data['name']:
             for n in data['name']:

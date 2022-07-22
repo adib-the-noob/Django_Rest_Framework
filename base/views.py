@@ -1,8 +1,10 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import StudentSerializer, BookSerializer, CategorySerializer
-from .models import Student,Book
+from .serializers import StudentSerializer, BookSerializer, CategorySerializer, UserSerializer
+from .models import Student, Book
 from rest_framework.views import APIView
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 
 # Create your views here.
@@ -15,8 +17,35 @@ def get_book(request):
         'books': serializer.data
     })
 
-class StudentAPI(APIView):
 
+class RegisterUser(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {
+                    'status': 'error',
+                    'message': serializer.errors
+                }
+            )
+        serializer.save()
+
+
+        user = User.objects.get(username=serializer.data['username'])
+        token_obj, _ = Token.objects.get_or_create(user=user)
+
+
+        return Response(
+            {
+                'status': 'success',
+                'payload': request.data,
+                'message': 'User created successfully',
+                'token': str(token_obj)
+            }
+        )
+
+
+class StudentAPI(APIView):
     def get(self, request):
         students = Student.objects.all()
         serializer = StudentSerializer(students, many=True)
@@ -43,29 +72,27 @@ class StudentAPI(APIView):
     def put(self, request):
         pass
 
-    
     def patch(self, request):
-            try:
-                student_obj = Student.objects.get(id=request.data['id'])
-                serializer = StudentSerializer(student_obj, data=request.data, partial=True)
-                if not serializer.is_valid():
-                    return Response(
-                        {
-                            'status': 'error',
-                            'message': serializer.errors
-                        }
-                    )
-                serializer.save()
-                return Response({
-                    'mesaage': 'Student updated successfully'
-                })
-            except Exception as e:
-                print(e)
-                return Response({
-                    'message': 'Student not found'
-                })
-
-    
+        try:
+            student_obj = Student.objects.get(id=request.data['id'])
+            serializer = StudentSerializer(
+                student_obj, data=request.data, partial=True)
+            if not serializer.is_valid():
+                return Response(
+                    {
+                        'status': 'error',
+                        'message': serializer.errors
+                    }
+                )
+            serializer.save()
+            return Response({
+                'mesaage': 'Student updated successfully'
+            })
+        except Exception as e:
+            print(e)
+            return Response({
+                'message': 'Student not found'
+            })
 
     def delete(self, request):
         try:
@@ -82,8 +109,6 @@ class StudentAPI(APIView):
             })
 
 
-
-
 # @api_view(['GET'])
 # def home(request):
 #     students = Student.objects.all()
@@ -93,8 +118,7 @@ class StudentAPI(APIView):
 
 # @api_view(['POST'])
 # def post_student(request):
-     
-    
+
 
 # @api_view(['PUT'])
 # def update_student(request,id):
