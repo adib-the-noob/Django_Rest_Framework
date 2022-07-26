@@ -1,14 +1,28 @@
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .serializers import StudentSerializer, BookSerializer, CategorySerializer, UserSerializer
-from .models import Student, Book
-from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
+from rest_framework import generics
 from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from .models import Book, Student
+from .serializers import (BookSerializer, CategorySerializer,
+                          StudentSerializer, UserSerializer)
 
-# Create your views here.
+# Generic views
+
+
+class StudentGeneric(generics.ListAPIView, generics.CreateAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+class StudentGenericUpdate(generics.UpdateAPIView,generics.DestroyAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    lookup_field = 'id'
 
 @api_view(['GET'])
 def get_book(request):
@@ -31,11 +45,8 @@ class RegisterUser(APIView):
             )
         serializer.save()
 
-
-
         user = User.objects.get(username=serializer.data['username'])
         token_obj, _ = Token.objects.get_or_create(user=user)
-
 
         return Response(
             {
@@ -45,10 +56,6 @@ class RegisterUser(APIView):
                 'token': str(token_obj)
             }
         )
-
-
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
 
 
 class StudentAPI(APIView):
@@ -116,5 +123,3 @@ class StudentAPI(APIView):
             return Response({
                 'message': 'Student not found'
             })
-
-
